@@ -20,7 +20,7 @@ fn main() {
 
     let g = Game {
         grid: Grid::new((WIN_WIDTH / 5) as usize, (WIN_HEIGHT / 5) as usize),
-        iterations_second: 12,
+        iterations_second: 999999999,
         paused: true,
         cell_size: 5,
         brush_size: 1,
@@ -39,7 +39,7 @@ fn main() {
                 game.grid.next_iter();
             }
             drop(game);
-            thread::sleep(Duration::from_millis(1000 / ips));
+            thread::sleep(Duration::from_nanos(1000_000_000 / ips));
         });
     }
 
