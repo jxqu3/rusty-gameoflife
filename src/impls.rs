@@ -141,14 +141,14 @@ impl Grid {
                 let neighbors = cell.get_alive_neighbors(&self);
 
                 if cell.alive && (neighbors == 2 || neighbors == 3) {
-                    new_grid.cells[cell.x as usize][cell.y as usize].alive = true;
+                    new_grid.get_cell_mut(cell.x, cell.y).alive = true;
                     continue;
                 }
                 if !cell.alive && neighbors == 3 {
-                    new_grid.cells[cell.x as usize][cell.y as usize].alive = true;
+                    new_grid.get_cell_mut(cell.x, cell.y).alive = true;
                     continue;
                 }
-                new_grid.cells[cell.x as usize][cell.y as usize].alive = false;
+                new_grid.get_cell_mut(cell.x, cell.y).alive = false;
             }
         }
 
@@ -156,10 +156,14 @@ impl Grid {
     }
 
     pub fn get_cell(&self, x: i32, y: i32) -> &Cell {
-        if x < 0 || x >= self.width as i32 || y < 0 || y >= self.height as i32 {
-            &self.cells[0][0]
-        } else {
-            &self.cells[x as usize][y as usize]
-        }
+        let x = (self.width as i32 + x ) % self.width as i32;
+        let y = (self.height as i32 + y) % self.height as i32;
+        &self.cells[x as usize][y as usize]
+    }
+
+    pub fn get_cell_mut(&mut self, x: i32, y: i32) -> &mut Cell {
+        let x = (self.width + x as usize) % self.width as usize;
+        let y = (self.height + y as usize) % self.height as usize;
+        &mut self.cells[x][y]
     }
 }
