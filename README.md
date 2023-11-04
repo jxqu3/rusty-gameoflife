@@ -11,6 +11,7 @@ The cells are color coded, from green to orange, where dark green is 0 neighbors
 - Zoom in/out with CTRL+Mouse wheel
 - Set simulation speed with Mouse wheel
 - Set brush size with SHIFT+Mouse wheel
+- Enable or disable the grid outline with G (if you disable it only live and highlighted cells will be rendered, improving performance!)
 
 ## why
 To learn rust. I already made an [implementation in Go](https://github.com/checkm4ted/gameoflife), and wanted to try with Rust. In all my past rust projects I only used a single thread (the main one). In this one I had to use more.

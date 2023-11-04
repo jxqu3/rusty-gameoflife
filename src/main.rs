@@ -20,10 +20,11 @@ fn main() {
 
     let g = Game {
         grid: Grid::new((WIN_WIDTH / 5) as usize, (WIN_HEIGHT / 5) as usize),
-        iterations_second: 5,
+        iterations_second: 12,
         paused: true,
         cell_size: 5,
         brush_size: 1,
+        draw_grid: true,
     };
 
     let game = gc_pt(g);
@@ -64,6 +65,10 @@ fn main() {
         
         if d.is_key_pressed(KeyboardKey::KEY_SPACE) {
             game_mut.paused = !game_mut.paused;
+        }
+
+        if d.is_key_pressed(KeyboardKey::KEY_G) {
+            game_mut.draw_grid = !game_mut.draw_grid;
         }
 
         game_mut.draw(&mut d);

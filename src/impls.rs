@@ -10,34 +10,62 @@ impl Game {
         for row in self.grid.cells.iter_mut() {
             for cell in row.iter_mut() {
                 let mut color = if cell.alive {
-                    Color::new((cell.get_alive_neighbors(&grid) as f32 / 8f32 * 255f32) as u8, 127, 0, 255)
+                    Color::new(
+                        (cell.get_alive_neighbors(&grid) as f32 / 8f32 * 255f32) as u8,
+                        127,
+                        0,
+                        255,
+                    )
                 } else {
                     Color::BLACK
                 };
 
                 let mut brush_size = self.brush_size * 2 - (self.brush_size / 2);
 
-                if self.brush_size == 1 {brush_size = 0};
+                if self.brush_size == 1 {
+                    brush_size = 0
+                };
 
-                if  d.get_mouse_x() >= cell.x * self.cell_size - brush_size as i32
-                    && d.get_mouse_y() >= cell.y * self.cell_size - brush_size as i32
-                    && d.get_mouse_x() <= cell.x * self.cell_size + self.cell_size + brush_size - 1 as i32
-                    && d.get_mouse_y() <= cell.y * self.cell_size + self.cell_size + brush_size - 1 as i32
+                let highlighting_cell = d.get_mouse_x() >= cell.x * self.cell_size - brush_size as i32
+                && d.get_mouse_y() >= cell.y * self.cell_size - brush_size as i32
+                && d.get_mouse_x()
+                    <= cell.x * self.cell_size + self.cell_size + brush_size - 1 as i32
+                && d.get_mouse_y()
+                    <= cell.y * self.cell_size + self.cell_size + brush_size - 1 as i32;
+
+                if highlighting_cell
                 {
-                    if !cell.alive {color = Color::new(255, 255, 255, 100);}
+                    color = if !cell.alive {
+                        Color::new(255, 255, 200, 50)
+                    } else {
+                        let c = (cell.get_alive_neighbors(&grid) as f32 / 8f32 * 255f32) as u8;
+                        Color::new(c, 200, 100, c)
+                    };
                     if d.is_mouse_button_down(MouseButton::MOUSE_BUTTON_LEFT) {
                         cell.alive = true;
                     } else if d.is_mouse_button_down(MouseButton::MOUSE_BUTTON_RIGHT) {
                         cell.alive = false;
                     }
                 }
-                d.draw_rectangle(
-                    cell.x as i32 * self.cell_size + 1,
-                    cell.y as i32 * self.cell_size + 1,
-                    self.cell_size - 2,
-                    self.cell_size - 2,
-                    color,
-                );
+                if self.draw_grid {
+                    d.draw_rectangle(
+                        cell.x as i32 * self.cell_size + 1,
+                        cell.y as i32 * self.cell_size + 1,
+                        self.cell_size - 2,
+                        self.cell_size - 2,
+                        color,
+                    );
+                    continue;
+                }
+                if cell.alive || highlighting_cell {
+                    d.draw_rectangle(
+                        cell.x as i32 * self.cell_size,
+                        cell.y as i32 * self.cell_size,
+                        self.cell_size,
+                        self.cell_size,
+                        color,
+                    );
+                }
             }
         }
 
@@ -54,25 +82,14 @@ impl Game {
         );
 
         if self.paused {
-            d.draw_text(
-                &"| |",
-                740,
-                12,
-                60,
-                Color::WHITE,
-            );
+            d.draw_text(&"| |", 740, 12, 60, Color::WHITE);
         }
     }
 }
 
-
 impl Cell {
     pub fn new(x: i32, y: i32, alive: bool) -> Cell {
-        Cell {
-            alive,
-            x,
-            y,
-        }
+        Cell { alive, x, y }
     }
 
     pub fn get_alive_neighbors(&self, grid: &Grid) -> u8 {
@@ -90,7 +107,6 @@ impl Cell {
         count
     }
 }
-
 
 impl Grid {
     pub fn new(width: usize, height: usize) -> Grid {
