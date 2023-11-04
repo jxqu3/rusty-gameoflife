@@ -125,6 +125,14 @@ impl Grid {
         }
     }
 
+    pub fn clear(self: &mut Grid) {
+        for i in &mut self.cells {
+            for cell in i {
+                cell.alive = false;
+            }
+        }
+    }
+
     pub fn next_iter(self: &mut Grid) {
         let mut new_grid = Grid::new(self.width, self.height);
 

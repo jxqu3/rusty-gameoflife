@@ -67,6 +67,10 @@ fn main() {
             game_mut.paused = !game_mut.paused;
         }
 
+        if d.is_key_pressed(KeyboardKey::KEY_C) {
+            game_mut.grid.clear();
+        }
+
         if d.is_key_pressed(KeyboardKey::KEY_G) {
             game_mut.draw_grid = !game_mut.draw_grid;
         }

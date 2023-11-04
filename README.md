@@ -1,5 +1,5 @@
 # checkm4te's rusty game of life
-A simple (and probably really inefficient) implementation of Conway's game of life written in Rust and rendered using Raylib. It includes a world editor where you can add/remove cells (paint-like, with brush size), zoom in/out, set iterations/s, and pause the simulation.
+A simple (probably really inefficient) and lightweight (<1MB!) implementation of Conway's game of life written in Rust and rendered using Raylib. It includes a world editor where you can add/remove cells (paint-like, with brush size), zoom in/out, set iterations/s, and pause the simulation.
 
 RIP John Horton Conway.
 
@@ -12,6 +12,7 @@ The cells are color coded, from green to orange, where dark green is 0 neighbors
 - Set simulation speed with Mouse wheel
 - Set brush size with SHIFT+Mouse wheel
 - Enable or disable the grid outline with G (if you disable it only live and highlighted cells will be rendered, improving performance!)
+- Clear the grid with C
 
 ## why
 To learn rust. I already made an [implementation in Go](https://github.com/checkm4ted/gameoflife), and wanted to try with Rust. In all my past rust projects I only used a single thread (the main one). In this one I had to use more.
