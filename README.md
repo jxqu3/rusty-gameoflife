@@ -19,6 +19,7 @@ To learn rust. I already made an [implementation in Go](https://github.com/check
 
 ## screenshots
 ![Screenshot](image.png)!
+![Whole demo GIF](gif.gif)
 ![Brush size demo](image-1.png)
 
 ## special thanks
