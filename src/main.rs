@@ -20,7 +20,7 @@ fn main() {
 
     let g = Game {
         grid: Grid::new((WIN_WIDTH / 5) as usize, (WIN_HEIGHT / 5) as usize),
-        iterations_second: 999999999,
+        iterations_second: 999_999_999,
         paused: true,
         cell_size: 5,
         brush_size: 1,
