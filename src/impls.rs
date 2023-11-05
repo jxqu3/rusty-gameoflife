@@ -1,4 +1,4 @@
-use crate::structs::*;
+use crate::{structs::*, WIN_WIDTH, WIN_HEIGHT};
 use raylib::prelude::*;
 
 impl Game {
@@ -7,65 +7,64 @@ impl Game {
 
         let grid = self.grid.clone();
 
-        for row in self.grid.cells.iter_mut() {
-            for cell in row.iter_mut() {
-                let mut color = if cell.alive {
-                    Color::new(
-                        (cell.get_alive_neighbors(&grid) as f32 / 8f32 * 255f32) as u8,
-                        127,
-                        0,
-                        255,
-                    )
+        for cell in self.grid.cells.iter_mut() {
+
+            let mut color = if cell.alive {
+                Color::new(
+                    (cell.get_alive_neighbors(&grid) as f32 / 8f32 * 255f32) as u8,
+                    127,
+                    0,
+                    255,
+                )
+            } else {
+                Color::BLACK
+            };
+
+            let mut brush_size = self.brush_size * 2 - (self.brush_size / 2);
+
+            if self.brush_size == 1 {
+                brush_size = 0
+            };
+
+            let highlighting_cell = d.get_mouse_x() >= cell.x * self.cell_size - brush_size as i32
+            && d.get_mouse_y() >= cell.y * self.cell_size - brush_size as i32
+            && d.get_mouse_x()
+                <= cell.x * self.cell_size + self.cell_size + brush_size - 1 as i32
+            && d.get_mouse_y()
+                <= cell.y * self.cell_size + self.cell_size + brush_size - 1 as i32;
+
+            if highlighting_cell
+            {
+                color = if !cell.alive {
+                    Color::new(255, 255, 200, 50)
                 } else {
-                    Color::BLACK
+                    let c = (cell.get_alive_neighbors(&grid) as f32 / 8f32 * 255f32) as u8;
+                    Color::new(c, 200, 100, c)
                 };
-
-                let mut brush_size = self.brush_size * 2 - (self.brush_size / 2);
-
-                if self.brush_size == 1 {
-                    brush_size = 0
-                };
-
-                let highlighting_cell = d.get_mouse_x() >= cell.x * self.cell_size - brush_size as i32
-                && d.get_mouse_y() >= cell.y * self.cell_size - brush_size as i32
-                && d.get_mouse_x()
-                    <= cell.x * self.cell_size + self.cell_size + brush_size - 1 as i32
-                && d.get_mouse_y()
-                    <= cell.y * self.cell_size + self.cell_size + brush_size - 1 as i32;
-
-                if highlighting_cell
-                {
-                    color = if !cell.alive {
-                        Color::new(255, 255, 200, 50)
-                    } else {
-                        let c = (cell.get_alive_neighbors(&grid) as f32 / 8f32 * 255f32) as u8;
-                        Color::new(c, 200, 100, c)
-                    };
-                    if d.is_mouse_button_down(MouseButton::MOUSE_BUTTON_LEFT) {
-                        cell.alive = true;
-                    } else if d.is_mouse_button_down(MouseButton::MOUSE_BUTTON_RIGHT) {
-                        cell.alive = false;
-                    }
+                if d.is_mouse_button_down(MouseButton::MOUSE_BUTTON_LEFT) {
+                    cell.alive = true;
+                } else if d.is_mouse_button_down(MouseButton::MOUSE_BUTTON_RIGHT) {
+                    cell.alive = false;
                 }
-                if self.draw_grid {
-                    d.draw_rectangle(
-                        cell.x as i32 * self.cell_size + 1,
-                        cell.y as i32 * self.cell_size + 1,
-                        self.cell_size - 2,
-                        self.cell_size - 2,
-                        color,
-                    );
-                    continue;
-                }
-                if cell.alive || highlighting_cell {
-                    d.draw_rectangle(
-                        cell.x as i32 * self.cell_size,
-                        cell.y as i32 * self.cell_size,
-                        self.cell_size,
-                        self.cell_size,
-                        color,
-                    );
-                }
+            }
+            if self.draw_grid {
+                d.draw_rectangle(
+                    cell.x as i32 * self.cell_size + 1,
+                    cell.y as i32 * self.cell_size + 1,
+                    self.cell_size - 2,
+                    self.cell_size - 2,
+                    color,
+                );
+                continue;
+            }
+            if cell.alive || highlighting_cell {
+                d.draw_rectangle(
+                    cell.x as i32 * self.cell_size,
+                    cell.y as i32 * self.cell_size,
+                    self.cell_size,
+                    self.cell_size,
+                    color,
+                );
             }
         }
 
@@ -110,13 +109,11 @@ impl Cell {
 
 impl Grid {
     pub fn new(width: usize, height: usize) -> Grid {
-        let mut cells = vec![vec![Cell::new(0, 0, false); height as usize]; width as usize];
-        for (x, i) in cells.iter_mut().enumerate() {
-            for (y, cell) in i.iter_mut().enumerate() {
-                cell.x = x as i32;
-                cell.y = y as i32;
-                cell.alive = false;
-            }
+        let mut cells = vec![Cell::new(0, 0, false); width * height];
+        for (i, cell) in cells.iter_mut().enumerate() {
+            cell.x = (i % width) as i32;
+            cell.y = (i / width) as i32;
+            cell.alive = false;
         }
         Grid {
             width,
@@ -126,44 +123,41 @@ impl Grid {
     }
 
     pub fn clear(self: &mut Grid) {
-        for i in &mut self.cells {
-            for cell in i {
-                cell.alive = false;
-            }
+        for c in &mut self.cells {
+            c.alive = false;
         }
     }
 
     pub fn next_iter(self: &mut Grid) {
         let mut new_grid = Grid::new(self.width, self.height);
 
-        for i in &self.cells {
-            for cell in i {
-                let neighbors = cell.get_alive_neighbors(&self);
+        for cell in &self.cells {
+            let neighbors = cell.get_alive_neighbors(&self);
 
-                if cell.alive && (neighbors == 2 || neighbors == 3) {
-                    new_grid.get_cell_mut(cell.x, cell.y).alive = true;
-                    continue;
-                }
-                if !cell.alive && neighbors == 3 {
-                    new_grid.get_cell_mut(cell.x, cell.y).alive = true;
-                    continue;
-                }
-                new_grid.get_cell_mut(cell.x, cell.y).alive = false;
+            if cell.alive && (neighbors == 2 || neighbors == 3) {
+                new_grid.get_cell_mut(cell.x, cell.y).alive = true;
+                continue;
             }
+            if !cell.alive && neighbors == 3 {
+                new_grid.get_cell_mut(cell.x, cell.y).alive = true;
+                continue;
+            }
+            new_grid.get_cell_mut(cell.x, cell.y).alive = false;
         }
 
         self.cells = new_grid.cells;
     }
 
     pub fn get_cell(&self, x: i32, y: i32) -> &Cell {
-        let x = (self.width as i32 + x ) % self.width as i32;
-        let y = (self.height as i32 + y) % self.height as i32;
-        &self.cells[x as usize][y as usize]
+        let nx = (self.width as i32 + x ) % self.width as i32;
+        let ny = (self.height as i32 + y) % self.height as i32;
+        self.cells.get((nx + ny * self.width as i32) as usize).unwrap()
     }
 
     pub fn get_cell_mut(&mut self, x: i32, y: i32) -> &mut Cell {
-        let x = (self.width + x as usize) % self.width as usize;
-        let y = (self.height + y as usize) % self.height as usize;
-        &mut self.cells[x][y]
+        let nx = (self.width as i32 + x ) % self.width as i32;
+        let ny = (self.height as i32 + y) % self.height as i32;
+        self.cells.get_mut((nx + ny * self.width as i32) as usize).unwrap()
     }
+
 }

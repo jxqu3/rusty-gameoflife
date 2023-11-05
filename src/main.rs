@@ -18,9 +18,10 @@ fn main() {
 
     rl.set_target_fps(144);
 
+
     let g = Game {
         grid: Grid::new((WIN_WIDTH / 5) as usize, (WIN_HEIGHT / 5) as usize),
-        iterations_second: 999_999_999,
+        iterations_second: 10,
         paused: true,
         cell_size: 5,
         brush_size: 1,

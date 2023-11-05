@@ -14,6 +14,9 @@ The cells are color coded, from green to orange, where dark green is 0 neighbors
 - Enable or disable the grid outline with G (if you disable it only live and highlighted cells will be rendered, improving performance!)
 - Clear the grid with C
 
+## building
+`cargo build --release # release for faster runtime`
+
 ## why
 To learn rust. I already made an [implementation in Go](https://github.com/checkm4ted/gameoflife), and wanted to try with Rust. In all my past rust projects I only used a single thread (the main one). In this one I had to use more.
 

@@ -1,6 +1,8 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Mutex, Arc};
 
-#[derive(Clone)]
+use crate::{WIN_WIDTH, WIN_HEIGHT};
+
+#[derive(Clone, Copy)]
 pub struct Cell {
     pub alive: bool,
     pub x: i32,
@@ -11,7 +13,7 @@ pub struct Cell {
 pub struct Grid {
     pub width: usize,
     pub height: usize,
-    pub cells: Vec<Vec<Cell>>,
+    pub cells: Vec<Cell>,
 }
 
 
