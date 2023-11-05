@@ -4,8 +4,8 @@ use std::{sync::Arc, thread, time::Duration};
 
 use crate::structs::*;
 use raylib::prelude::*;
-mod structs;
 mod impls;
+mod structs;
 
 const WIN_WIDTH: i32 = 800;
 const WIN_HEIGHT: i32 = 800;
@@ -17,7 +17,6 @@ fn main() {
         .build();
 
     rl.set_target_fps(144);
-
 
     let g = Game {
         grid: Grid::new((WIN_WIDTH / 5) as usize, (WIN_HEIGHT / 5) as usize),
@@ -36,7 +35,7 @@ fn main() {
             let mut game = game.lock().unwrap();
             let mut ips = game.iterations_second as u64;
             ips = if ips <= 1 { 1 } else { ips };
-            if !game.paused{
+            if !game.paused {
                 game.grid.next_iter();
             }
             drop(game);
@@ -47,7 +46,7 @@ fn main() {
     while !rl.window_should_close() {
         let mut d = rl.begin_drawing(&thread);
         let mouse_wheel = d.get_mouse_wheel_move().floor() as i32;
-        
+
         let mut game_mut = game.lock().unwrap();
 
         if d.is_key_down(KeyboardKey::KEY_LEFT_CONTROL) {
@@ -63,7 +62,7 @@ fn main() {
                 game_mut.iterations_second += mouse_wheel;
             }
         }
-        
+
         if d.is_key_pressed(KeyboardKey::KEY_SPACE) {
             game_mut.paused = !game_mut.paused;
         }
