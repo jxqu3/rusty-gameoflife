@@ -1,4 +1,4 @@
-use crate::{structs::*, WIN_WIDTH, WIN_HEIGHT};
+use crate::structs::*;
 use raylib::prelude::*;
 
 impl Game {

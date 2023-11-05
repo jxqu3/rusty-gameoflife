@@ -1,7 +1,5 @@
 use std::sync::{Mutex, Arc};
 
-use crate::{WIN_WIDTH, WIN_HEIGHT};
-
 #[derive(Clone, Copy)]
 pub struct Cell {
     pub alive: bool,
