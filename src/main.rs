@@ -24,7 +24,7 @@ fn main() {
         paused: true,
         cell_size: 5,
         brush_size: 1,
-        draw_grid: true,
+        draw_grid: true
     };
 
     let game = gc_pt(g);
@@ -33,13 +33,12 @@ fn main() {
         let game = Arc::clone(&game);
         thread::spawn(move || loop {
             let mut game = game.lock().unwrap();
-            let mut ips = game.iterations_second as u64;
-            ips = if ips <= 1 { 1 } else { ips };
+            let ips = game.iterations_second.clone();
             if !game.paused {
                 game.grid.next_iter();
             }
             drop(game);
-            thread::sleep(Duration::from_nanos(1000_000_000 / ips));
+            thread::sleep(Duration::from_nanos(1000_000_000 / ips as u64));
         });
     }
 
