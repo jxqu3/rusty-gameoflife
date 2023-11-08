@@ -19,12 +19,12 @@ fn main() {
     rl.set_target_fps(144);
 
     let g = Game {
-        grid: Grid::new((WIN_WIDTH / 5) as usize, (WIN_HEIGHT / 5) as usize),
+        grid: Grid::new((WIN_WIDTH / 3) as usize, (WIN_HEIGHT / 3) as usize),
         iterations_second: 10,
         paused: true,
-        cell_size: 5,
+        cell_size: 3,
         brush_size: 1,
-        draw_grid: true
+        draw_grid: true,
     };
 
     let game = gc_pt(g);
@@ -68,6 +68,10 @@ fn main() {
 
         if d.is_key_pressed(KeyboardKey::KEY_C) {
             game_mut.grid.clear();
+        }
+
+        if d.is_key_pressed(KeyboardKey::KEY_R) {
+            game_mut.grid.randomize();
         }
 
         if d.is_key_pressed(KeyboardKey::KEY_G) {

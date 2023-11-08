@@ -122,6 +122,12 @@ impl Grid {
         }
     }
 
+    pub fn randomize(self: &mut Grid) {
+        for c in &mut self.cells {
+            c.alive = rand::random();
+        }
+    }
+
     pub fn clear(self: &mut Grid) {
         for c in &mut self.cells {
             c.alive = false;
