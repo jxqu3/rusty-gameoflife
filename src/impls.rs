@@ -2,13 +2,44 @@ use crate::structs::*;
 use raylib::prelude::*;
 
 impl Game {
-    pub fn draw(&mut self, d: &mut RaylibDrawHandle) {
+    pub fn handle_input(&mut self, d: &mut RaylibDrawHandle<'_>) {
+        let mouse_wheel = d.get_mouse_wheel_move() as i32;
+
+        if d.is_mouse_button_down(MouseButton::MOUSE_BUTTON_MIDDLE) {
+            self.camera.offset = self.camera.offset + d.get_mouse_delta();
+        }
+
+        if d.is_key_down(KeyboardKey::KEY_LEFT_CONTROL) {
+            self.camera.zoom = (self.camera.zoom + d.get_mouse_wheel_move()).clamp(1f32, f32::MAX);
+        } else if d.is_key_down(KeyboardKey::KEY_LEFT_SHIFT) {
+            self.brush_size = (self.brush_size + mouse_wheel).clamp(1, i32::MAX);
+        } else {
+            self.iterations_second = (self.iterations_second + mouse_wheel).clamp(1, i32::MAX);
+        }
+
+        if d.is_key_pressed(KeyboardKey::KEY_SPACE) {
+            self.paused = !self.paused;
+        }
+
+        if d.is_key_pressed(KeyboardKey::KEY_C) {
+            self.grid.clear();
+        }
+
+        if d.is_key_pressed(KeyboardKey::KEY_R) {
+            self.grid.randomize();
+        }
+
+        if d.is_key_pressed(KeyboardKey::KEY_G) {
+            self.draw_grid = !self.draw_grid;
+        }
+    }
+
+    pub fn draw(&mut self, d: &mut RaylibMode2D<'_, RaylibDrawHandle<'_>>) {
         d.clear_background(Color::new(20, 20, 20, 255));
 
         let grid = self.grid.clone();
 
         for cell in self.grid.cells.iter_mut() {
-
             let mut color = if cell.alive {
                 Color::new(
                     (cell.get_alive_neighbors(&grid) as f32 / 8f32 * 255f32) as u8,
@@ -26,15 +57,21 @@ impl Game {
                 brush_size = 0
             };
 
-            let highlighting_cell = d.get_mouse_x() >= cell.x * self.cell_size - brush_size as i32
-            && d.get_mouse_y() >= cell.y * self.cell_size - brush_size as i32
-            && d.get_mouse_x()
-                <= cell.x * self.cell_size + self.cell_size + brush_size - 1 as i32
-            && d.get_mouse_y()
-                <= cell.y * self.cell_size + self.cell_size + brush_size - 1 as i32;
+            let m_x = d.get_mouse_x() as f32;
+            let m_y = d.get_mouse_y() as f32;
+            let o_x = self.camera.offset.x;
+            let o_y = self.camera.offset.y;
+            let zoom = self.camera.zoom;
 
-            if highlighting_cell
-            {
+            let pos_x = ((m_x - o_x) / zoom) as i32;
+            let pos_y = ((m_y - o_y) / zoom) as i32;
+
+            let highlighting_cell = pos_x as i32 - 1 >= cell.x * 4 as i32 - brush_size
+                && pos_x as i32 - 1 <= cell.x * 4 + 4 as i32 + brush_size - 1
+                && pos_y as i32 - 1 >= cell.y * 4 as i32 - brush_size
+                && pos_y as i32 - 1 <= cell.y * 4 + 4 as i32 + brush_size - 1;
+
+            if highlighting_cell {
                 color = if !cell.alive {
                     Color::new(255, 255, 200, 50)
                 } else {
@@ -48,40 +85,10 @@ impl Game {
                 }
             }
             if self.draw_grid {
-                d.draw_rectangle(
-                    cell.x as i32 * self.cell_size + 1,
-                    cell.y as i32 * self.cell_size + 1,
-                    self.cell_size - 2,
-                    self.cell_size - 2,
-                    color,
-                );
+                d.draw_rectangle(cell.x * 4 + 1, cell.y * 4 + 1, 3, 3, color);
                 continue;
             }
-            if cell.alive || highlighting_cell {
-                d.draw_rectangle(
-                    cell.x as i32 * self.cell_size,
-                    cell.y as i32 * self.cell_size,
-                    self.cell_size,
-                    self.cell_size,
-                    color,
-                );
-            }
-        }
-
-        d.draw_text(
-            &format!(
-                "Iterations/Sec: {}\nFPS: {}",
-                self.iterations_second,
-                d.get_fps()
-            ),
-            12,
-            12,
-            20,
-            Color::WHITE,
-        );
-
-        if self.paused {
-            d.draw_text(&"| |", 740, 12, 60, Color::WHITE);
+            d.draw_rectangle(cell.x * 4, cell.y * 4, 4, 4, color);
         }
     }
 }
@@ -155,15 +162,18 @@ impl Grid {
     }
 
     pub fn get_cell(&self, x: i32, y: i32) -> &Cell {
-        let nx = (self.width as i32 + x ) % self.width as i32;
+        let nx = (self.width as i32 + x) % self.width as i32;
         let ny = (self.height as i32 + y) % self.height as i32;
-        self.cells.get((nx + ny * self.width as i32) as usize).unwrap()
+        self.cells
+            .get((nx + ny * self.width as i32) as usize)
+            .unwrap()
     }
 
     pub fn get_cell_mut(&mut self, x: i32, y: i32) -> &mut Cell {
-        let nx = (self.width as i32 + x ) % self.width as i32;
+        let nx = (self.width as i32 + x) % self.width as i32;
         let ny = (self.height as i32 + y) % self.height as i32;
-        self.cells.get_mut((nx + ny * self.width as i32) as usize).unwrap()
+        self.cells
+            .get_mut((nx + ny * self.width as i32) as usize)
+            .unwrap()
     }
-
 }

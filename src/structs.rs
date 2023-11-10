@@ -1,4 +1,6 @@
-use std::sync::{Mutex, Arc};
+use std::sync::{Arc, Mutex};
+
+use raylib::prelude::Camera2D;
 
 #[derive(Clone, Copy)]
 pub struct Cell {
@@ -14,14 +16,15 @@ pub struct Grid {
     pub cells: Vec<Cell>,
 }
 
-
 pub struct Game {
     pub paused: bool,
     pub grid: Grid,
-    pub cell_size: i32,
     pub iterations_second: i32,
     pub brush_size: i32,
     pub draw_grid: bool,
+    pub camera: Camera2D,
+    pub width: i32,
+    pub height: i32,
 }
 
 pub fn gc_pt<T>(obj: T) -> Arc<Mutex<T>> {

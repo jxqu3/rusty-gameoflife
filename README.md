@@ -14,6 +14,7 @@ The cells are color coded, from green to orange, where dark green is 0 neighbors
 - Enable or disable the grid outline with G (if you disable it only live and highlighted cells will be rendered, improving performance!)
 - Clear the grid with C
 - Randomize cells with R.
+- Move camera with middle mouse button
 
 ## building
 ```bash
