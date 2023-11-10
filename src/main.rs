@@ -72,7 +72,7 @@ fn main() {
         );
 
         if game_mut.paused {
-            d.draw_text(&"| |", 740, 12, 60, Color::WHITE);
+            d.draw_text(&"| |", WIN_WIDTH-60, 12, 60, Color::WHITE);
         }
         drop(game_mut);
     }
