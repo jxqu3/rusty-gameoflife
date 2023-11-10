@@ -10,7 +10,7 @@ impl Game {
         }
 
         if d.is_key_down(KeyboardKey::KEY_LEFT_CONTROL) {
-            self.camera.zoom = (self.camera.zoom + d.get_mouse_wheel_move()).clamp(1f32, f32::MAX);
+            self.camera.zoom = (self.camera.zoom + d.get_mouse_wheel_move() * 0.3).clamp(1f32, f32::MAX);
         } else if d.is_key_down(KeyboardKey::KEY_LEFT_SHIFT) {
             self.brush_size = (self.brush_size + mouse_wheel).clamp(1, i32::MAX);
         } else {
