@@ -10,7 +10,8 @@ impl Game {
         }
 
         if d.is_key_down(KeyboardKey::KEY_LEFT_CONTROL) {
-            self.camera.zoom = (self.camera.zoom + d.get_mouse_wheel_move() * 0.3).clamp(1f32, f32::MAX);
+            self.camera.zoom =
+                (self.camera.zoom + d.get_mouse_wheel_move() * 0.2).clamp(0.5, f32::MAX);
         } else if d.is_key_down(KeyboardKey::KEY_LEFT_SHIFT) {
             self.brush_size = (self.brush_size + mouse_wheel).clamp(1, i32::MAX);
         } else {
@@ -66,10 +67,10 @@ impl Game {
             let pos_x = ((m_x - o_x) / zoom) as i32;
             let pos_y = ((m_y - o_y) / zoom) as i32;
 
-            let highlighting_cell = pos_x as i32 - 1 >= cell.x * 4 as i32 - brush_size
-                && pos_x as i32 - 1 <= cell.x * 4 + 4 as i32 + brush_size - 1
-                && pos_y as i32 - 1 >= cell.y * 4 as i32 - brush_size
-                && pos_y as i32 - 1 <= cell.y * 4 + 4 as i32 + brush_size - 1;
+            let highlighting_cell = pos_x as i32 - 1 >= cell.x * 5 as i32 - brush_size
+                && pos_x as i32 - 1 <= cell.x * 5 + 5 as i32 + brush_size - 1
+                && pos_y as i32 - 1 >= cell.y * 5 as i32 - brush_size
+                && pos_y as i32 - 1 <= cell.y * 5 + 5 as i32 + brush_size - 1;
 
             if highlighting_cell {
                 color = if !cell.alive {
@@ -84,11 +85,12 @@ impl Game {
                     cell.alive = false;
                 }
             }
+
             if self.draw_grid {
-                d.draw_rectangle(cell.x * 4 + 1, cell.y * 4 + 1, 3, 3, color);
+                d.draw_rectangle(cell.x * 5 + 1, cell.y * 5 + 1, 4, 4, color);
                 continue;
             }
-            d.draw_rectangle(cell.x * 4, cell.y * 4, 4, 4, color);
+            d.draw_rectangle(cell.x * 5, cell.y * 5, 5, 5, color);
         }
     }
 }

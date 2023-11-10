@@ -28,7 +28,7 @@ fn main() {
             target: Vector2::new(0f32, 0f32),
             offset: Vector2::new(0f32, 0f32),
             rotation: 0f32,
-            zoom: 3f32,
+            zoom: 1f32,
         },
         width: WIN_HEIGHT,
         height: WIN_HEIGHT,
@@ -60,7 +60,7 @@ fn main() {
         }
         d.draw_text(
             &format!(
-                "Iterations/Sec: {}\nFPS: {}\nZoom: {}",
+                "Iterations/Sec: {}\nFPS: {}\nZoom: {:.1}",
                 game_mut.iterations_second,
                 d.get_fps(),
                 game_mut.camera.zoom
