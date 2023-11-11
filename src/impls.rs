@@ -1,17 +1,25 @@
 use crate::structs::*;
 use raylib::prelude::*;
 
+const CELL_SIZE: i32 = 10;
+
 impl Game {
     pub fn handle_input(&mut self, d: &mut RaylibDrawHandle<'_>) {
         let mouse_wheel = d.get_mouse_wheel_move() as i32;
 
         if d.is_mouse_button_down(MouseButton::MOUSE_BUTTON_MIDDLE) {
-            self.camera.offset = self.camera.offset + d.get_mouse_delta();
+            self.camera.target = self.camera.target - d.get_mouse_delta();
         }
 
         if d.is_key_down(KeyboardKey::KEY_LEFT_CONTROL) {
-            self.camera.zoom =
-                (self.camera.zoom + d.get_mouse_wheel_move() * 0.2).clamp(0.5, f32::MAX);
+            if mouse_wheel != 0 {
+                let new_zoom =
+                    (self.camera.zoom + d.get_mouse_wheel_move() * 0.2).clamp(0.2, f32::MAX);
+                let m_pos = d.get_mouse_position();
+                self.camera.offset = m_pos;
+                self.camera.target = d.get_screen_to_world2D(m_pos, self.camera);
+                self.camera.zoom = new_zoom;
+            }
         } else if d.is_key_down(KeyboardKey::KEY_LEFT_SHIFT) {
             self.brush_size = (self.brush_size + mouse_wheel).clamp(1, i32::MAX);
         } else {
@@ -58,19 +66,13 @@ impl Game {
                 brush_size = 0
             };
 
-            let m_x = d.get_mouse_x() as f32;
-            let m_y = d.get_mouse_y() as f32;
-            let o_x = self.camera.offset.x;
-            let o_y = self.camera.offset.y;
-            let zoom = self.camera.zoom;
+            let m = d.get_screen_to_world2D(d.get_mouse_position(), self.camera);
 
-            let pos_x = ((m_x - o_x) / zoom) as i32;
-            let pos_y = ((m_y - o_y) / zoom) as i32;
-
-            let highlighting_cell = pos_x as i32 - 1 >= cell.x * 5 as i32 - brush_size
-                && pos_x as i32 - 1 <= cell.x * 5 + 5 as i32 + brush_size - 1
-                && pos_y as i32 - 1 >= cell.y * 5 as i32 - brush_size
-                && pos_y as i32 - 1 <= cell.y * 5 + 5 as i32 + brush_size - 1;
+            let highlighting_cell = 
+                   m.x as i32 - 1 >= cell.x * CELL_SIZE as i32 - brush_size
+                && m.x as i32 - 1 <= cell.x * CELL_SIZE + CELL_SIZE as i32 + brush_size - 1
+                && m.y as i32 - 1 >= cell.y * CELL_SIZE as i32 - brush_size
+                && m.y as i32 - 1 <= cell.y * CELL_SIZE + CELL_SIZE as i32 + brush_size - 1;
 
             if highlighting_cell {
                 color = if !cell.alive {
@@ -87,10 +89,22 @@ impl Game {
             }
 
             if self.draw_grid {
-                d.draw_rectangle(cell.x * 5 + 1, cell.y * 5 + 1, 4, 4, color);
+                d.draw_rectangle(
+                    cell.x * CELL_SIZE + 1,
+                    cell.y * CELL_SIZE + 1,
+                    CELL_SIZE - 1,
+                    CELL_SIZE - 1,
+                    color,
+                );
                 continue;
             }
-            d.draw_rectangle(cell.x * 5, cell.y * 5, 5, 5, color);
+            d.draw_rectangle(
+                cell.x * CELL_SIZE,
+                cell.y * CELL_SIZE,
+                CELL_SIZE,
+                CELL_SIZE,
+                color,
+            );
         }
     }
 }
