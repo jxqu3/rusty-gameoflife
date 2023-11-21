@@ -22,7 +22,7 @@ fn main() {
         .title("CheckM4te - Game Of Life")
         .build();
 
-    rl.set_target_fps(144);
+    rl.set_target_fps(300);
 
     let g = Game::init(WIN_WIDTH, WIN_HEIGHT);
 
