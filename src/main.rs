@@ -31,11 +31,11 @@ fn main() {
     {
         let game = Arc::clone(&game);
         thread::spawn(move || loop {
-            let mut game = game.lock().unwrap();
-            let ips = game.iterations_second;
+            let mut game = game.write().unwrap();
             if !game.paused {
                 game.grid.next_iter();
             }
+            let ips = game.iterations_second.clone();
             drop(game);
             thread::sleep(Duration::from_nanos(1000_000_000 / ips as u64));
         });
@@ -43,7 +43,7 @@ fn main() {
     
 
     while !rl.window_should_close() {
-        let mut game_mut = game.lock().unwrap();
+        let mut game_mut = game.write().unwrap();
         game_mut.handle_input(&mut rl);
         let mut d = rl.begin_drawing(&thread);
         {

@@ -22,7 +22,7 @@ cargo build --release # release for faster runtime
 ```
 
 ## why
-To learn rust. I already made an [implementation in Go](https://github.com/checkm4ted/gameoflife), and wanted to try with Rust. In all my past rust projects I only used a single thread (the main one). In this one I had to use more.
+To learn rust. I already made an [implementation in Go](https://github.com/checkm4ted/gameoflife) (If you just want a working game of life use that one, it has more features and somehow better performance, also it only renders visible cells giving +200 FPS with millions of cells!), and wanted to try with Rust. In all my past rust projects I only used a single thread (the main one). In this one I had to use more.
 
 ## screenshots
 ![Screenshot](image.png)!

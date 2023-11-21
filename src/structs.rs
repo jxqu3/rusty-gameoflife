@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 
 use raylib::prelude::Camera2D;
 
@@ -27,6 +27,6 @@ pub struct Game {
     pub height: i32,
 }
 
-pub fn gc_pt<T>(obj: T) -> Arc<Mutex<T>> {
-    Arc::new(Mutex::new(obj))
+pub fn gc_pt<T>(obj: T) -> Arc<RwLock<T>> {
+    Arc::new(RwLock::new(obj))
 }
