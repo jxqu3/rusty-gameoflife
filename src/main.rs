@@ -47,10 +47,11 @@ fn main() {
         }
         d.draw_text(
             &format!(
-                "Iterations/Sec: {}\nFPS: {}\nZoom: {:.1}",
+                "Iterations/Sec: {}\nFPS: {}\nZoom: {:.1}\nGrid Size: {s}x{s}",
                 game.iterations_second,
                 d.get_fps(),
-                game.camera.zoom
+                game.camera.zoom,
+                s = game.grid.width
             ),
             12,
             12,
