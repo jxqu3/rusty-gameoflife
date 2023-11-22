@@ -45,8 +45,20 @@ impl Game {
         let grid = self.grid.clone();
 
         let m = d.get_screen_to_world2D(d.get_mouse_position(), self.camera);
-    	let cam_world_pos = d.get_screen_to_world2D(Vector2{x: (self.width + 2*CELL_SIZE) as f32, y: (self.height + 2*CELL_SIZE) as f32}, self.camera);
-    	let start_world_pos = d.get_screen_to_world2D(Vector2{x: 0., y: 0.}, self.camera);
+        let cam_world_pos = d.get_screen_to_world2D(
+            Vector2 {
+                x: (self.width + 2 * CELL_SIZE) as f32,
+                y: (self.height + 2 * CELL_SIZE) as f32,
+            },
+            self.camera,
+        );
+        let start_world_pos = d.get_screen_to_world2D(
+            Vector2 {
+                x: -CELL_SIZE as f32,
+                y: -CELL_SIZE as f32,
+            },
+            self.camera,
+        );
 
         let brush_size = self.brush_size - 1;
         let low = -brush_size;
@@ -59,26 +71,32 @@ impl Game {
         for cell in self.grid.cells.iter_mut() {
             x = cell.x * CELL_SIZE;
             y = cell.y * CELL_SIZE;
-            let cell_world_pos = Vector2{x: x as f32, y: y as f32};
-            let neighbors_r = (grid.get_alive_neighbors(&cell) as f32 / 8f32 * 255f32) as u8;
-            visible = cell_world_pos.x < cam_world_pos.x && cell_world_pos.y < cam_world_pos.y && cell_world_pos.x > start_world_pos.x && cell_world_pos.y > start_world_pos.y;
-            
+            let cell_world_pos = Vector2 {
+                x: x as f32,
+                y: y as f32,
+            };
+
+            visible = cell_world_pos.x < cam_world_pos.x
+                && cell_world_pos.y < cam_world_pos.y
+                && cell_world_pos.x > start_world_pos.x
+                && cell_world_pos.y > start_world_pos.y;
+
             if !visible {
                 continue;
             }
 
+            let neighbors_r = (grid.get_alive_neighbors(&cell) as f32 / 8f32 * 255f32) as u8;
             color = if cell.alive {
                 Color::new(neighbors_r, 127, 0, 255)
             } else {
                 Color::BLACK
             };
 
-
-            
             if m.x as i32 >= x + low
-            && m.x as i32 <= x + high
-            && m.y as i32 >= y + low
-            && m.y as i32 <= y + high {
+                && m.x as i32 <= x + high
+                && m.y as i32 >= y + low
+                && m.y as i32 <= y + high
+            {
                 color = if !cell.alive {
                     Color::new(255, 255, 200, 50)
                 } else {
@@ -113,7 +131,7 @@ impl Game {
 
     pub fn init(width: i32, height: i32) -> Game {
         Game {
-            grid: Grid::new((width / 3) as usize, (height / 3) as usize),
+            grid: Grid::new(1000, 1000),
             iterations_second: 10,
             paused: true,
             brush_size: 1,
@@ -124,8 +142,8 @@ impl Game {
                 rotation: 0f32,
                 zoom: 1f32,
             },
-            width: width,
-            height: height,
+            width,
+            height,
         }
     }
 }
@@ -178,7 +196,7 @@ impl Grid {
         }
     }
 
-    pub fn next_iter(self: &mut Grid) {
+    pub fn next_iter(self: &Grid) -> Grid {
         let mut new_grid = Grid::new(self.width, self.height);
 
         for cell in &self.cells {
@@ -188,7 +206,7 @@ impl Grid {
                 (cell.alive && neighbors == 2 || neighbors == 3) || (!cell.alive && neighbors == 3);
         }
 
-        self.cells = new_grid.cells;
+        new_grid
     }
 
     pub fn get_cell(&self, x: i32, y: i32) -> &Cell {

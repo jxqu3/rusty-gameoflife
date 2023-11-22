@@ -1,11 +1,6 @@
 #![windows_subsystem = "windows"]
 
-use std::{
-    sync::
-        Arc,
-    thread,
-    time::Duration,
-};
+use std::thread;
 
 use crate::structs::*;
 use raylib::prelude::*;
@@ -24,39 +19,38 @@ fn main() {
 
     rl.set_target_fps(300);
 
-    let g = Game::init(WIN_WIDTH, WIN_HEIGHT);
+    let mut game = Game::init(WIN_WIDTH, WIN_HEIGHT);
 
-    let game = gc_pt(g);
+    let mut iter_time = 0f32;
 
-    {
-        let game = Arc::clone(&game);
-        thread::spawn(move || loop {
-            let mut game = game.write().unwrap();
-            if !game.paused {
-                game.grid.next_iter();
-            }
-            let ips = game.iterations_second.clone();
-            drop(game);
-            thread::sleep(Duration::from_nanos(1000_000_000 / ips as u64));
-        });
-    }
-    
+    let (tx, sx) = std::sync::mpsc::sync_channel::<Grid>(1);
 
     while !rl.window_should_close() {
-        let mut game_mut = game.write().unwrap();
-        game_mut.handle_input(&mut rl);
+        iter_time += rl.get_frame_time();
+        if let Ok(grid) = sx.try_recv() {
+            game.grid = grid;
+        }
+        if iter_time >= 1. / game.iterations_second as f32 && !game.paused {
+            iter_time = 0.;
+            let tx = tx.clone();
+            let grid = game.grid.clone();
+            thread::spawn(move || {
+                tx.try_send(grid.next_iter()).unwrap();
+            });
+        }
+        game.handle_input(&mut rl);
         let mut d = rl.begin_drawing(&thread);
         {
-            let mut d = d.begin_mode2D(game_mut.camera);
+            let mut d = d.begin_mode2D(game.camera);
 
-            game_mut.draw(&mut d);
+            game.draw(&mut d);
         }
         d.draw_text(
             &format!(
                 "Iterations/Sec: {}\nFPS: {}\nZoom: {:.1}",
-                game_mut.iterations_second,
+                game.iterations_second,
                 d.get_fps(),
-                game_mut.camera.zoom
+                game.camera.zoom
             ),
             12,
             12,
@@ -64,10 +58,8 @@ fn main() {
             Color::WHITE,
         );
 
-        if game_mut.paused {
+        if game.paused {
             d.draw_text(&"| |", WIN_WIDTH - 60, 12, 60, Color::WHITE);
         }
-        drop(game_mut);
     }
-    drop(game);
 }

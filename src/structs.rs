@@ -1,5 +1,3 @@
-use std::sync::{Arc, RwLock};
-
 use raylib::prelude::Camera2D;
 
 #[derive(Clone, Copy)]
@@ -27,6 +25,3 @@ pub struct Game {
     pub height: i32,
 }
 
-pub fn gc_pt<T>(obj: T) -> Arc<RwLock<T>> {
-    Arc::new(RwLock::new(obj))
-}
