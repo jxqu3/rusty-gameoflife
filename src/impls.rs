@@ -27,31 +27,37 @@ impl Game {
     }
 
     pub fn handle_input(&mut self, d: &mut RaylibHandle) {
-        let mouse_wheel = d.get_mouse_wheel_move() as i32;
-
+        
         if d.is_mouse_button_down(MouseButton::MOUSE_BUTTON_MIDDLE) {
             self.camera.target =
-                self.camera.target - d.get_mouse_delta() * (1f32 / self.camera.zoom);
+            self.camera.target - d.get_mouse_delta() * (1f32 / self.camera.zoom);
         }
-
+        
         self.handle_keys(d);
+        let mouse_wheel = d.get_mouse_wheel_move();
 
-        if mouse_wheel == 0 {
+        if mouse_wheel == 0. {
             return;
         }
-        if d.is_key_down(KeyboardKey::KEY_LEFT_CONTROL) {
-            let new_zoom = min_one_f(self.camera.zoom + d.get_mouse_wheel_move() * 0.1);
-            self.camera.zoom = new_zoom;
-        } else if d.is_key_down(KeyboardKey::KEY_LEFT_SHIFT) {
-            self.brush_size = min_one(self.brush_size + mouse_wheel);
-        } else if d.is_key_down(KeyboardKey::KEY_LEFT_ALT) {
-            let width = (self.grid.width + mouse_wheel as usize * 10).clamp(10, 100000);
-            self.grid.width = width;
-            self.grid.height = width;
-            let new_grid = Grid::new(width, width);
-            self.grid = new_grid;
-        } else {
-            self.iterations_second = min_one(self.iterations_second + mouse_wheel);
+        
+        let mouse_wheel = d.get_mouse_wheel_move() as i32;
+        
+        cond::cond! {
+            d.is_key_down(KeyboardKey::KEY_LEFT_CONTROL) => {
+                let new_zoom = min_one_f(self.camera.zoom + d.get_mouse_wheel_move() * 0.1);
+                self.camera.zoom = new_zoom;
+            },
+            d.is_key_down(KeyboardKey::KEY_LEFT_SHIFT) => {
+                self.brush_size = min_one(self.brush_size + mouse_wheel);
+            },
+            d.is_key_down(KeyboardKey::KEY_LEFT_ALT) => {
+                let width = (self.grid.width + (d.get_mouse_wheel_move() * 10.) as usize).clamp(10, 100000);
+                self.grid.width = width;
+                self.grid.height = width;
+                let new_grid = Grid::new(width, width);
+                self.grid = new_grid;
+            },
+            _ => self.iterations_second = min_one(self.iterations_second + mouse_wheel)
         }
     }
 

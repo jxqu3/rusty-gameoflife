@@ -24,19 +24,26 @@ fn main() {
     let mut iter_time = 0f32;
 
     let (tx, sx) = std::sync::mpsc::sync_channel::<Grid>(1);
+    let (time_tx, time_sx) = std::sync::mpsc::sync_channel::<f32>(1);
 
     while !rl.window_should_close() {
         iter_time += rl.get_frame_time();
         if let Ok(grid) = sx.try_recv() {
             game.grid = grid;
         }
-        if iter_time >= 1. / game.iterations_second as f32 && !game.paused {
-            iter_time = 0.;
+        if let Ok(t) = time_sx.try_recv() {
+            iter_time = t;
+        }
+        {
+            let time_tx = time_tx.clone();
             let tx = tx.clone();
-            let grid = game.grid.clone();
-            thread::spawn(move || {
-                tx.try_send(grid.next_iter()).unwrap();
-            });
+            if iter_time >= 1. / game.iterations_second as f32 && !game.paused {
+                let grid = game.grid.clone();
+                thread::spawn(move || {
+                    time_tx.try_send(0.).unwrap();
+                    tx.try_send(grid.next_iter()).unwrap();
+                });
+            }
         }
         game.handle_input(&mut rl);
         let mut d = rl.begin_drawing(&thread);
